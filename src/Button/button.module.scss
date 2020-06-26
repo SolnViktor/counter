@@ -1,0 +1,43 @@
+.field {
+    color: wheat;
+    font-size: 45px;
+    width: 200px;
+    height: 70px;
+    border: 3px solid cornflowerblue;
+    border-radius: 10px;
+    margin: 15px auto;
+    &_red {
+        color: red;
+    }
+}
+
+.button_active {
+    background: blanchedalmond;
+    padding: 5px 10px;
+    border: 2px solid cornflowerblue;
+    border-radius: 5px;
+    margin: 20px 40px;
+    &:active,
+    &:focus {
+        outline: none;
+    }
+    &:hover {
+        background: darkslateblue;
+        border: 2px solid white;
+        color: white;
+    }
+    &.button_disable {
+        color: slategrey;
+        opacity: 0.5;
+        background: blanchedalmond;
+    }
+    &.button_disable:hover {
+        background: blanchedalmond;
+        border: 2px solid cornflowerblue;
+        color: slategrey;
+    }
+}
+
+
+
+
