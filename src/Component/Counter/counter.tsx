@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React from "react";
 import styles from './counter.module.scss'
-import {ButtonsType} from "../../App";
 import Button from "../../Button/button";
+import {ButtonsType} from '../../redux/counter-reducer';
 
 type CounterType = {
     addCount: (count: number, maxCount: number, minCount: number) => void

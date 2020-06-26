@@ -1,30 +1,30 @@
-import React, {ChangeEvent, useState} from "react";
+import React from 'react';
 import styles from './setCounter.module.scss'
-import {ButtonsType} from "../../App";
-import Button from "../../Button/button";
+import Button from '../../Button/button';
+import {ButtonsType} from '../../redux/counter-reducer';
 
 type CounterType = {
-    status: string | null
+    // status: string | null
     buttons: ButtonsType
     setCount: () => void
     setStartCount: any
     setMaxCount: any
     startCount: number
     maxCount: number
+    isMaxCountInputError: boolean
+    isMinCountInputError: boolean
 }
 
 
 function SetCounter(props: CounterType) {
 
-
-
     const onClickSetCount = () => {
         props.setCount();
     }
-    const changeInputMaxCountStyle = (props.maxCount <= props.startCount || props.maxCount < 0)
+    const changeInputMaxCountStyle = props.isMaxCountInputError
         ? `${styles.input} ${styles.input_error}`
         : styles.input;
-    const changeInputMinCountStyle = (props.startCount >= props.maxCount || props.startCount < 0)
+    const changeInputMinCountStyle = props.isMinCountInputError
         ? `${styles.input} ${styles.input_error}`
         : styles.input;
 
@@ -40,7 +40,7 @@ function SetCounter(props: CounterType) {
                 <div className={styles.value}>
                     <span>min value:</span>
                     <input className={changeInputMinCountStyle}
-                           onChange={ props.setStartCount} type="number" value={props.startCount}/>
+                           onChange={props.setStartCount} type="number" value={props.startCount}/>
                 </div>
             </div>
 
