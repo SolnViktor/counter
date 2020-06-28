@@ -1,4 +1,4 @@
-import {AppDispatch} from './redux-store';
+import {AppDispatch, InferActionsType} from './redux-store';
 
 export type ButtonsType = {
     inc: { id: number, title: string, disabled: boolean }
@@ -15,45 +15,6 @@ export type CounterReducerType = {
     isMinCountInputError: boolean
 }
 
-type SetCurrentCountActionType = {
-    type: 'SET-CURRENT-COUNT'
-    payload: number
-}
-type SetStartCountActionType = {
-    type: 'SET-START-COUNT'
-    payload: number
-}
-type SetMaxCountActionType = {
-    type: 'SET-MAX-COUNT'
-    payload: number
-}
-type SetCounterStatusActionType = {
-    type: 'SET-COUNTER-STATUS'
-    payload: 'error' | 'disable' | 'active'
-}
-export type SetIsIncButtonDisabledActionType = {
-    type: 'SET-IS-INC-BUTTON-DISABLED'
-    payload: boolean
-}
-type SetIsResetButtonDisabledActionType = {
-    type: 'SET-IS-RESET-BUTTON-DISABLED'
-    payload: boolean
-}
-type SetIsSetButtonDisabledActionType = {
-    type: 'SET-IS-SET-BUTTON-DISABLED'
-    payload: boolean
-}
-type IsMaxCountInputErrorActionType = {
-    type: 'IS-MAX-COUNT-INPUT-ERROR'
-    payload: boolean
-}
-type IsMinCountInputErrorActionType = {
-    type: 'IS-MIN-COUNT-INPUT-ERROR'
-    payload: boolean
-}
-type ActionsType = SetCurrentCountActionType | SetStartCountActionType | SetMaxCountActionType
-    | SetCounterStatusActionType | SetIsIncButtonDisabledActionType | SetIsResetButtonDisabledActionType
-| SetIsSetButtonDisabledActionType | IsMaxCountInputErrorActionType | IsMinCountInputErrorActionType
 
 let initialState:CounterReducerType = {
     currentCount: 0,
@@ -119,17 +80,19 @@ export function counterReducer(state = initialState, action:ActionsType): Counte
     }
 }
 
-export const setCurrentCount = (payload:number) => ({type: 'SET-CURRENT-COUNT', payload})
-export const setStartCount = (payload:number) => ({type: 'SET-START-COUNT', payload})
-export const setMaxCount = (payload:number) => ({type: 'SET-MAX-COUNT', payload})
-export const setCounterStatus = (payload:string) => ({type: 'SET-COUNTER-STATUS', payload})
-export const setIsIncButtonDisabled = (payload:boolean) => ({type: 'SET-IS-INC-BUTTON-DISABLED', payload})
-export const setIsResetButtonDisabled = (payload:boolean) => ({type: 'SET-IS-RESET-BUTTON-DISABLED', payload})
-export const setIsSetButtonDisabled = (payload:boolean) => ({type: 'SET-IS-SET-BUTTON-DISABLED', payload})
-export const isMaxCountInputError = (payload: boolean) => ({type: 'IS-MAX-COUNT-INPUT-ERROR', payload})
-export const isMinCountInputError = (payload: boolean) => ({type: 'IS-MIN-COUNT-INPUT-ERROR', payload})
+type ActionsType = InferActionsType<typeof actions>
 
-export const setCurrentCountWithPromise = (payload:number) => (dispatch: any) => {
-    dispatch(setCurrentCount(payload))
-    return Promise.resolve()
+export const actions = {
+setCurrentCount: (payload:number) => ({type: 'SET-CURRENT-COUNT', payload} as const),
+setStartCount: (payload:number) => ({type: 'SET-START-COUNT', payload} as const),
+setMaxCount: (payload:number) => ({type: 'SET-MAX-COUNT', payload} as const),
+setCounterStatus: (payload:'error' | 'disable' | 'active') => ({type: 'SET-COUNTER-STATUS', payload} as const),
+setIsIncButtonDisabled: (payload:boolean) => ({type: 'SET-IS-INC-BUTTON-DISABLED', payload} as const),
+setIsResetButtonDisabled: (payload:boolean) => ({type: 'SET-IS-RESET-BUTTON-DISABLED', payload} as const),
+setIsSetButtonDisabled: (payload:boolean) => ({type: 'SET-IS-SET-BUTTON-DISABLED', payload} as const),
+isMaxCountInputError: (payload: boolean) => ({type: 'IS-MAX-COUNT-INPUT-ERROR', payload} as const),
+isMinCountInputError: (payload: boolean) => ({type: 'IS-MIN-COUNT-INPUT-ERROR', payload} as const),
+
 }
+
+

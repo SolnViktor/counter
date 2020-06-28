@@ -1,60 +1,80 @@
-import React, {ChangeEvent, useEffect} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import './App.css';
 import Counter from './Component/Counter/counter';
 import SetCounter from './Component/SetCounter/setCounter';
 import {connect} from 'react-redux';
 import {
-    isMaxCountInputError, isMinCountInputError,
-    setCounterStatus,
-    setCurrentCount, setCurrentCountWithPromise,
-    setIsIncButtonDisabled, setIsResetButtonDisabled, setIsSetButtonDisabled,
-    setMaxCount,
-    setStartCount
+    CounterReducerType,
 } from './redux/counter-reducer';
-import {RootState} from './redux/redux-store';
+import {AppDispatch, RootState} from './redux/redux-store';
+import {actions} from './redux/counter-reducer'
+
+type AppPropsType = {
+    counter: CounterReducerType
+    setCurrentCount: (payload:number) => void
+    setStartCount: (payload:number) => void
+    setMaxCount: (payload:number) => void
+    setCounterStatus: (payload:'error' | 'disable' | 'active') => void
+    setIsIncButtonDisabled: (payload:boolean) => void
+    setIsResetButtonDisabled: (payload:boolean) => void
+    setIsSetButtonDisabled: (payload:boolean) => void
+    isMaxCountInputError: (payload:boolean) => void
+    isMinCountInputError: (payload:boolean) => void
+}
 
 
-function App({counter, ...props}: any) {
-
+const App: React.FC<AppPropsType> = ({counter, ...props}) => {
+    let [localstorageData, setLocalstorageData] = useState({})
+    let [isFirstLoad, setIsFirstLoad] = useState(true)
 
     const setCount = () => {
-        props.setCurrentCount(counter.startCount);
+        props.setCurrentCount(counter.startCount)
         props.setCounterStatus('active')
         props.setIsResetButtonDisabled(true)
         props.setIsIncButtonDisabled(false)
         props.setIsSetButtonDisabled(true)
-
-        localStorage.setItem('startCount', counter.startCount.toString());
-        localStorage.setItem('maxCount', counter.maxCount.toString());
-
+        let temp = {
+            ...localstorageData,
+            startCount: counter.startCount,
+            maxCount: counter.maxCount
+        }
+        setLocalstorageData(temp)
+        localStorage.setItem('counterValues', JSON.stringify(temp));
     }
-    useEffect(() => {
-        const prewStartCount = localStorage.getItem('startCount');
-        if (prewStartCount !== null) props.setStartCount(JSON.parse(prewStartCount))
 
-        const prewMaxCount = localStorage.getItem('maxCount');
-        if (prewMaxCount !== null) props.setMaxCount(JSON.parse(prewMaxCount))
-
-        const prewCurrentCount = localStorage.getItem('currentCount');
-        if (prewCurrentCount !== null) {
-            props.setCurrentCountWithPromise(JSON.parse(prewCurrentCount))
-                .then(() => props.setIsIncButtonDisabled(false))
-
-            // props.setCurrentCount(JSON.parse(prewCurrentCount))
-            // props.setIsIncButtonDisabled(false)
-
-            props.setCounterStatus('active')
-        }
-    }, [])
 
     useEffect(() => {
-        if (counter.currentCount === counter.maxCount) {
-            props.setIsIncButtonDisabled(true)
-        } else {
-            props.setIsIncButtonDisabled(false)
+        const prewCounterValues = localStorage.getItem('counterValues');
+        // @ts-ignore
+        const parsedPrewCounterValues = JSON.parse(prewCounterValues)
+        let {startCount, maxCount, currentCount} = parsedPrewCounterValues
+        if (isFirstLoad) {
+            if(prewCounterValues) {
+                if (startCount !== undefined) props.setStartCount(startCount)
+                if (maxCount !== undefined) props.setMaxCount(maxCount)
+                if (currentCount !== undefined) {
+                    props.setCurrentCount(currentCount)
+                    props.setIsIncButtonDisabled(false)
+                    props.setCounterStatus('active')
+                }
+            }
+            setIsFirstLoad(false)
         }
-        localStorage.setItem('currentCount', counter.currentCount.toString());
-    }, [counter.currentCount])
+        if(counter.currentCount || counter.currentCount === 0) {
+            if (counter.currentCount >= counter.maxCount) {
+                props.setIsIncButtonDisabled(true)
+            } else {
+                props.setIsIncButtonDisabled(false)
+            }
+            if(parsedPrewCounterValues) {
+                let temp = {...localstorageData, ...parsedPrewCounterValues, currentCount: counter.currentCount}
+                setLocalstorageData(temp)
+                localStorage.setItem('counterValues', JSON.stringify(temp));
+            }
+        }
+    }, [isFirstLoad, counter.currentCount])
+
+
 
     const changeMaxValueHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const value = +e.currentTarget.value
@@ -90,7 +110,10 @@ function App({counter, ...props}: any) {
     }
 
     const addCount = () => {
-        if (counter.currentCount < counter.maxCount) props.setCurrentCount(++counter.currentCount);
+        let copyCurrentCount = counter.currentCount
+        if (counter.currentCount < counter.maxCount) {
+            props.setCurrentCount(++copyCurrentCount);
+        }
         props.setIsResetButtonDisabled(false)
     }
 
@@ -127,12 +150,19 @@ function App({counter, ...props}: any) {
 let mapStateToProps = (state: RootState) => ({
     counter: state.counter
 })
+let mapDispatchToProps  = (dispatch: AppDispatch) => ({
+    setCurrentCount: (payload:number) => {dispatch(actions.setCurrentCount(payload))},
+    setStartCount: (payload:number) => {dispatch(actions.setStartCount(payload))},
+    setMaxCount: (payload:number) => {dispatch(actions.setMaxCount(payload))},
+    setCounterStatus: (payload:'error' | 'disable' | 'active') => {dispatch(actions.setCounterStatus(payload))},
+    setIsIncButtonDisabled: (payload:boolean) => {dispatch(actions.setIsIncButtonDisabled(payload))},
+    setIsResetButtonDisabled: (payload:boolean) => {dispatch(actions.setIsResetButtonDisabled(payload))},
+    setIsSetButtonDisabled: (payload:boolean) => {dispatch(actions.setIsSetButtonDisabled(payload))},
+    isMaxCountInputError: (payload:boolean) => {dispatch(actions.isMaxCountInputError(payload))},
+    isMinCountInputError: (payload:boolean) => {dispatch(actions.isMinCountInputError(payload))},
+    })
 
 
-export const AppContainer = connect(mapStateToProps,
-    {
-        setCurrentCount, setStartCount, setMaxCount, setCurrentCountWithPromise,
-        setCounterStatus, setIsIncButtonDisabled, setIsResetButtonDisabled,
-        setIsSetButtonDisabled, isMaxCountInputError, isMinCountInputError
-    })(App)
+
+export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App)
 
